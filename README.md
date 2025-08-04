@@ -11,6 +11,8 @@ cd ~/plymake
 chmod +x plymouth-maker.sh
 ./plymouth-maker.sh
 ```
+> [!NOTE]  
+> `Make MP4 1920x1080 for better animations.`
 
 <div align="center">
 <table>
