@@ -171,6 +171,7 @@ EOF
 
 echo -e "${Green}Creating ${Yellow}$THEME_NAME.script${Green} file...${Color_Off}"
 cat << EOF > "$PLYMOUTH_DIR/$THEME_NAME.script"
+BEGIN;
 # ██████╗████████╗ ██████╗ ██████╗ ██╗     ██╗
 #██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗██║     ██║
 #██║        ██║   ██║   ██║██████╔╝██║ █╗  ██║
