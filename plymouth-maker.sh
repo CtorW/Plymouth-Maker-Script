@@ -170,7 +170,7 @@ ScriptFile=/usr/share/plymouth/themes/$THEME_NAME/$THEME_NAME.script
 EOF
 
 echo -e "${Green}Creating ${Yellow}$THEME_NAME.script${Green} file...${Color_Off}"
-cat << 'EOF' > "$PLYMOUTH_DIR/$THEME_NAME.script"
+cat << EOF > "$PLYMOUTH_DIR/$THEME_NAME.script"
 # ██████╗████████╗ ██████╗ ██████╗ ██╗     ██╗
 #██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗██║     ██║
 #██║        ██║   ██║   ██║██████╔╝██║ █╗  ██║
@@ -205,7 +205,7 @@ state.time = 0.0;
 //--------------------------------- Refresh (Logo animation) --------------------------
 
 # cycle through all images
-for (i = 0; i < 151; i++)
+for (i = 0; i < ${IMAGE_COUNT}; i++)
   flyingman_image[i] = Image("progress-" + i + ".png");
 flyingman_sprite = Sprite();
 
@@ -217,7 +217,7 @@ progress = 0;
 
 fun refresh_callback ()
   {
-    flyingman_sprite.SetImage(flyingman_image[Math.Int(progress / 2) % 151]);
+    flyingman_sprite.SetImage(flyingman_image[Math.Int(progress / 2) % ${IMAGE_COUNT}]);
     progress++;
   }
   
