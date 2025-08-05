@@ -283,6 +283,7 @@ fun MessageCallback(text) {
 }
 Plymouth.SetMessageFunction(MessageCallback);
 
+END;
 EOF
 
 if [ -z "$DEST_DIR" ]; then
