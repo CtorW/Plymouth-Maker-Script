@@ -170,7 +170,7 @@ ScriptFile=/usr/share/plymouth/themes/$THEME_NAME/$THEME_NAME.script
 EOF
 
 echo -e "${Green}Creating ${Yellow}$THEME_NAME.script${Green} file...${Color_Off}"
-cat << 'EOF'> "$PLYMOUTH_DIR/$THEME_NAME.script"
+cat << EOF > "$PLYMOUTH_DIR/$THEME_NAME.script"
 # ██████╗████████╗ ██████╗ ██████╗ ██╗     ██╗
 #██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗██║     ██║
 #██║        ██║   ██║   ██║██████╔╝██║ █╗  ██║
