@@ -5,7 +5,6 @@
 ```bash
 git clone https://github.com/CtorW/Plymouth-Maker-Script.git ~/plymake
 cd ~/plymake
-chmod +x plymouth-maker.sh
 ./plymouth-maker.sh
 ```
 > [!NOTE]  
