@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/5dad8087-f868-41eb-b75b-0e0775f404ef
 ```bash
 sudo nano /etc/systemd/system/plymouth-wait-for-animation.service
 ```
-### Paste this `change the TIME base on your preference`
+### Paste this `change the TIME base on your MP4`
 ```bash
 [Unit]
 Description=Waits for Plymouth animation to finish
