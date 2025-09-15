@@ -6,71 +6,58 @@
 # MP4 INTO BOOT ANIMATION 🫨
 #
 # Prerequisites:
-# - ffmpeg must be installed on your system. If using Arch Linux, the script
-#   will prompt you to install it.
+# - ffmpeg must be installed on your system.
 # ==============================================================================
 
+# --- Setup Terminal Colors ---
+# Check if tput is available and can set colors
 if tput setaf 1 >/dev/null 2>&1; then
-    # Standard Colors
     Color_Off="$(tput sgr0)"
-    Black="$(tput setaf 0)"
+    # Standard
     Red="$(tput setaf 1)"
     Green="$(tput setaf 2)"
     Yellow="$(tput setaf 3)"
     Blue="$(tput setaf 4)"
-    Purple="$(tput setaf 5)"
     Cyan="$(tput setaf 6)"
     White="$(tput setaf 7)"
-
-    # Bold Colors
-    BBlack="$(tput bold; tput setaf 0)"
+    # Bold
     BRed="$(tput bold; tput setaf 1)"
     BGreen="$(tput bold; tput setaf 2)"
     BYellow="$(tput bold; tput setaf 3)"
     BBlue="$(tput bold; tput setaf 4)"
-    BPurple="$(tput bold; tput setaf 5)"
     BCyan="$(tput bold; tput setaf 6)"
-    BWhite="$(tput bold; tput setaf 7)"
-
-    # Bright Bold Colors
-    BIBlack="$(tput bold; tput setaf 8)"
-    BIRed="$(tput bold; tput setaf 9)"
-    BIGreen="$(tput bold; tput setaf 10)"
-    BIYellow="$(tput bold; tput setaf 11)"
-    BIBlue="$(tput bold; tput setaf 12)"
-    BIPurple="$(tput bold; tput setaf 13)"
-    BICyan="$(tput bold; tput setaf 14)"
-    BIWhite="$(tput bold; tput setaf 15)"
 else
-    # Fallback to hardcoded ANSI codes if tput is not available or supported
     Color_Off="\033[0m"
-    Black="\033[0;30m"
     Red="\033[0;31m"
     Green="\033[0;32m"
     Yellow="\033[0;33m"
     Blue="\033[0;34m"
-    Purple="\033[0;35m"
     Cyan="\033[0;36m"
     White="\033[0;37m"
-
-    BBlack="\033[1;30m"
     BRed="\033[1;31m"
     BGreen="\033[1;32m"
     BYellow="\033[1;33m"
     BBlue="\033[1;34m"
-    BPurple="\033[1;35m"
     BCyan="\033[1;36m"
-    BWhite="\033[1;37m"
-    
-    BIBlack="\033[1;90m"
-    BIRed="\033[1;91m"
-    BIGreen="\033[1;92m"
-    BIYellow="\033[1;93m"
-    BIBlue="\033[1;94m"
-    BIPurple="\033[1;95m"
-    BICyan="\033[1;96m"
-    BIWhite="\033[1;97m"
 fi
+
+msg() {
+    local type="$1"
+    shift
+    local message="$@"
+    local color
+    local prefix
+
+    case "$type" in
+        INFO)    color="$BCyan"   ; prefix="[INFO]"    ;;
+        SUCCESS) color="$BGreen"  ; prefix="[SUCCESS]" ;;
+        WARN)    color="$BYellow" ; prefix="[WARN]"    ;;
+        ERROR)   color="$BRed"    ; prefix="[ERROR]"   ;;
+        *)       color="$White"   ; prefix="[MSG]"     ;;
+    esac
+
+    printf "%s %s%s\n" "${color}${prefix}${Color_Off}" "$message"
+}
 
 echo -ne "
 ${BCyan}-------------------------------------------------------------------------
@@ -81,21 +68,17 @@ ${BCyan}------------------------------------------------------------------------
 |  |  |     Tl___, ||   |   |  |  |  |  |  |    |   |   ||  _  ||     Y|   [_  __ 
 |  |  |     ||     !|   |   |  |  |  |  |  |    |   |   ||  |  ||  .  ||     T|  T
 l__j  l_____jl____/ l___j___j  l__j  l__j__j    l___j___jl__j__jl__j\_jl_____jl__j
-                                                                                   
 -------------------------------------------------------------------------${Color_Off}
 "
-echo -e "
-${BRed}------------------------------------------------------------------------
-    NOTE!:MAKE SURE YOUR MP4 IS ON MP4 FOLDER ONLY 1 MP4.
-------------------------------------------------------------------------${Color_Off}"
-read -p "Enter a name for your new Plymouth theme: " THEME_NAME
+msg "WARN" "Make sure you have only ONE MP4 file in the 'MP4' folder."
+
+read -p "$(echo -e "${BBlue}[ACTION]${Color_Off} Enter a name for your new Plymouth theme: ")" THEME_NAME
 
 if [ -z "$THEME_NAME" ]; then
-    echo -e "${Red}Theme name cannot be empty. Exiting.${Color_Off}"
+    msg "ERROR" "Theme name cannot be empty. Exiting."
     exit 1
 fi
-
-echo -e "${Green}Theme name set to: ${Yellow}$THEME_NAME${Color_Off}"
+msg "SUCCESS" "Theme name set to: $THEME_NAME"
 
 PLYMOUTH_DIR="OUTPUT/$THEME_NAME"
 MP4_DIR="MP4"
@@ -103,60 +86,80 @@ IMAGE_OUTPUT_DIR="$PLYMOUTH_DIR"
 DEST_DIR="/usr/share/plymouth/themes"
 
 if [ -d "$PLYMOUTH_DIR" ]; then
-    echo -e "${Yellow}The directory '$PLYMOUTH_DIR' already exists.${Color_Off}"
-    read -p "Do you want to overwrite it? (y/n): " -n 1 -r OVERWRITE
+    msg "WARN" "The directory '$PLYMOUTH_DIR' already exists."
+    read -p "$(echo -e "${BBlue}[ACTION]${Color_Off} Do you want to overwrite it? (y/n): ")" -n 1 -r OVERWRITE
     echo
     if [[ ! $OVERWRITE =~ ^[Yy]$ ]]; then
-        echo -e "${Cyan}Operation cancelled by user. Exiting.${Color_Off}"
+        msg "INFO" "Operation cancelled by user. Exiting."
         exit 1
     fi
-    echo -e "${Yellow}Overwriting existing directory...${Color_Off}"
+    msg "WARN" "Overwriting existing directory..."
     rm -rf "$PLYMOUTH_DIR"
 fi
 
-echo -e "${Green}Creating theme directory: ${Yellow}$PLYMOUTH_DIR${Color_Off}"
+msg "INFO" "Creating theme directory: $PLYMOUTH_DIR"
 mkdir -p "$PLYMOUTH_DIR"
 
-echo -e "${Green}Searching for MP4 file in '$MP4_DIR' folder...${Color_Off}"
-
+msg "INFO" "Searching for MP4 file in '$MP4_DIR' folder..."
 MP4_FILE=$(find "$MP4_DIR" -maxdepth 1 -type f -name "*.mp4" -print -quit)
 
 if [ -z "$MP4_FILE" ]; then
-    echo -e "${Red}No MP4 file found in '$MP4_DIR' folder. Exiting.${Color_Off}"
+    msg "ERROR" "No MP4 file found in '$MP4_DIR' folder. Exiting."
     exit 1
 fi
+msg "SUCCESS" "Found MP4 file: $MP4_FILE"
 
-echo -e "${Green}Found MP4 file: ${Yellow}$MP4_FILE${Color_Off}"
+if ! command -v plymouth &> /dev/null; then
+    msg "ERROR" "plymouth command not found."
+    if [ -f /etc/arch-release ]; then
+        msg "WARN" "Detected Arch Linux. Attempting to install plymouth."
+        read -p "$(echo -e "${BBlue}[ACTION]${Color_Off} Do you want to install plymouth? (y/n): ")" -n 1 -r INSTALL_PLYMOUTH
+        echo
+        if [[ $INSTALL_PLYMOUTH =~ ^[Yy]$ ]]; then
+            sudo pacman -Syu plymouth --noconfirm
+            if ! command -v plymouth &> /dev/null; then
+                msg "ERROR" "Installation failed. Please install plymout manually and try again."
+                exit 1
+            fi
+        else
+            msg "ERROR" "Installation cancelled. Cannot proceed without plymouth. Exiting."
+            exit 1
+        fi
+    else
+        msg "ERROR" "Please install plymouth manually and try again."
+        exit 1
+    fi
+fi
 
 if ! command -v ffmpeg &> /dev/null; then
-    echo -e "${Red}ffmpeg command not found.${Color_Off}"
+    msg "ERROR" "ffmpeg command not found."
     if [ -f /etc/arch-release ]; then
-        echo -e "${Yellow}Detected Arch Linux. Attempting to install ffmpeg with pacman.${Color_Off}"
-        read -p "Do you want to install ffmpeg? (y/n): " -n 1 -r INSTALL_FFMPEG
+        msg "WARN" "Detected Arch Linux. Attempting to install ffmpeg."
+        read -p "$(echo -e "${BBlue}[ACTION]${Color_Off} Do you want to install ffmpeg? (y/n): ")" -n 1 -r INSTALL_FFMPEG
         echo
         if [[ $INSTALL_FFMPEG =~ ^[Yy]$ ]]; then
             sudo pacman -Syu ffmpeg --noconfirm
             if ! command -v ffmpeg &> /dev/null; then
-                echo -e "${Red}Installation failed. Please install ffmpeg manually and try again.${Color_Off}"
+                msg "ERROR" "Installation failed. Please install ffmpeg manually and try again."
                 exit 1
             fi
         else
-            echo -e "${Yellow}Installation cancelled. Cannot proceed without ffmpeg. Exiting.${Color_Off}"
+            msg "ERROR" "Installation cancelled. Cannot proceed without ffmpeg. Exiting."
             exit 1
         fi
     else
-        echo -e "${Red}Please install ffmpeg manually and try again.${Color_Off}"
+        msg "ERROR" "Please install ffmpeg manually and try again."
         exit 1
     fi
 fi
 
-echo -e "${Green}Converting MP4 to PNG images...${Color_Off}"
-ffmpeg -i "$MP4_FILE" -vf "scale=iw:ih" -start_number 0 "$IMAGE_OUTPUT_DIR/progress-%d.png"
+msg "INFO" "Converting MP4 to PNG images. This may take a moment..."
+ffmpeg -loglevel error -i "$MP4_FILE" -vf "scale=iw:ih" -start_number 0 "$IMAGE_OUTPUT_DIR/progress-%d.png"
 
 IMAGE_COUNT=$(ls -1 "$IMAGE_OUTPUT_DIR" | grep 'progress' | wc -l)
-echo -e "${Green}Conversion complete. ${Yellow}$IMAGE_COUNT${Green} images created.${Color_Off}"
+msg "SUCCESS" "Conversion complete. $IMAGE_COUNT images created."
 
-echo -e "${Green}Creating ${Yellow}$THEME_NAME.plymouth${Green} file...${Color_Off}"
+msg "INFO" "Creating $THEME_NAME.plymouth file..."
 cat << EOF > "$PLYMOUTH_DIR/$THEME_NAME.plymouth"
 [Plymouth Theme]
 Name=$THEME_NAME
@@ -169,7 +172,7 @@ ImageDir=/usr/share/plymouth/themes/$THEME_NAME
 ScriptFile=/usr/share/plymouth/themes/$THEME_NAME/$THEME_NAME.script
 EOF
 
-echo -e "${Green}Creating ${Yellow}$THEME_NAME.script${Green} file...${Color_Off}"
+msg "INFO" "Creating $THEME_NAME.script file..."
 cat << EOF > "$PLYMOUTH_DIR/$THEME_NAME.script"
 # ██████╗████████╗ ██████╗ ██████╗ ██╗     ██╗
 #██╔════╝╚══██╔══╝██╔═══██╗██╔══██╗██║     ██║
@@ -286,31 +289,28 @@ Plymouth.SetMessageFunction(MessageCallback);
 EOF
 
 if [ -z "$DEST_DIR" ]; then
-    echo -e "${Red}Error: DEST_DIR is not set. Cannot move theme folder.${Color_Off}"
+    msg "ERROR" "Destination directory DEST_DIR is not set. Cannot move theme."
     exit 1
 fi
 
-echo -e "${Green}Moving theme directory to system folder: ${Yellow}$DEST_DIR${Color_Off}"
+msg "INFO" "Moving theme to system folder: $DEST_DIR"
 sudo mv "$PLYMOUTH_DIR" "$DEST_DIR"
 
 if [ $? -eq 0 ]; then
-    echo -e "${Green}Theme '${Yellow}$THEME_NAME${Green}' successfully moved to ${Yellow}$DEST_DIR/${Color_Off}"
+    msg "SUCCESS" "Theme '$THEME_NAME' successfully installed."
 else
-    echo -e "${Red}Failed to move the theme directory. Please check permissions.${Color_Off}"
+    msg "ERROR" "Failed to move the theme directory. Please check permissions or run as root."
     exit 1
 fi
 
-echo -ne "
-${BGreen}----------------------------------------------
-  ___ _   _  ___ ___ ___ ___ ___ _ 
- / __| | | |/ __/ __| __/ __/ __| |
- \__ \ |_| | (_| (__| _|\__ \__ \_|
- |___/\___/ \___\___|___|___/___(_)
-----------------------------------------------${Color_Off}
-"
-echo -e "${Cyan}=======================================${Color_Off}"
-echo -e "${Green}          Script by CtorW  ${Color_Off}"
-echo -e "${Green}Your Plymouth theme is ready!${Color_Off}"
-echo -e "${Green}To activate it, run the following commands:${Color_Off}"
-echo -e "${Yellow}sudo plymouth-set-default-theme -R $THEME_NAME${Color_Off}"
-echo -e "${Cyan}=======================================${Color_Off}"
+echo
+echo -e "${BGreen}--------------------------------------------------${Color_Off}"
+echo -e "${BGreen}  ___ _  _  ___ ___ ___ ___ ___ _                ${Color_Off}"
+echo -e "${BGreen} / __| | | |/ __/ __| __/ __/ __| |               ${Color_Off}"
+echo -e "${BGreen} \__ \ |_| | (_| (__| _|\__ \__ \_|               ${Color_Off}"
+echo -e "${BGreen} |___/\___/ \___\___|___|___/___(_)               ${Color_Off}"
+echo -e "${BGreen}--------------------------------------------------${Color_Off}"
+msg "SUCCESS" "Your Plymouth theme is ready!"
+msg "INFO" "To activate it, run the following command:"
+echo -e "${BYellow}sudo plymouth-set-default-theme -R $THEME_NAME${Color_Off}"
+echo
